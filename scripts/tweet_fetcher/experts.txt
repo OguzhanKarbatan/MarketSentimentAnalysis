@@ -1,0 +1,73 @@
+# --- RESMİ KURUMLAR VE HABER ---
+Merkez_Bankasi
+HMBakanligi
+tcbestepe
+bloomberght
+trthaber
+AACanli
+ekonomistdergi
+dunya_gazetesi
+federalreserve
+ecb
+reuters
+business
+ft
+goldmansachs
+
+# --- EKONOMİSTLER VE STRATEJİSTLER (TÜRKİYE) ---
+ozgurdemirtas
+selcukgecer
+islammemis
+mahfiegilmez
+ali_hakan_kara
+AtillaYesilada1
+mertbasaran
+tunckatiroglu
+evrendevrimz
+erkanoz
+barissoydan
+ugurgurses
+muratmuratoglu
+emrealkin1969
+sadiuzunoglu
+dr_m_p_akcay
+erda_arikan
+mustafas_sonmez
+guldematabay
+iris_cibre
+
+# --- KÜRESEL ANALİSTLER (ALTIN VE GÜMÜŞ) ---
+GoldPredict
+SchiffGold
+GoldPrice
+KitcoNewsNOW
+Fxhedgers
+zerohedge
+JamesTurkGold
+GoldMoney
+# PreciousMetalsX  # KALDIRILDI: yanlış hesap (spam)
+GoldSeek
+SilverInstitute
+# Jan_Nieuwenhuijs  # 0 tweet
+
+# --- FİNANSAL PLATFORMLAR VE BOTLAR ---
+InvestingTR
+# ForeksTurkey  # 0 tweet
+MatriksHaber
+# BigPara  # KALDIRILDI: yanlış hesap
+# Paratic  # KALDIRILDI: yanlış hesap
+# Ekotv_tr  # 0 tweet
+ParaAnaliz
+TradingView
+# TradingView_TR  # 0 tweet
+# MidasApp        # 0 tweet
+BorsaIQ
+# Hisse_Sinyalleri  # 0 tweet
+
+# --- KRİPTO VE MAKRO ETKİLEYİCİLER (DOLAR İÇİN) ---
+# KamileUyar     # 0 tweet
+# haluk_tatar    # 0 tweet
+# S_Sonmez_Ekonom  # 0 tweet
+# ekonomis_tr    # 0 tweet
+# stratejist_    # 0 tweet
+# borsagundem    # 0 tweet

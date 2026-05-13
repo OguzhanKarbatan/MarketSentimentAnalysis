@@ -209,5 +209,7 @@ __marimo__/
 # Bizim özel dosyalarımız
 venv/
 data/*.csv
+data/images/
 models/*.h5
 .env
+.claude/

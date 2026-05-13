@@ -1,47 +1,50 @@
+import sys
 import yfinance as yf
 import pandas as pd
-import os
+from pathlib import Path
 
-def download_market_data():
-    # Çekmek istediğimiz varlıklar ve Yahoo Finance sembolleri
-    assets = {
-        'Gold': 'GC=F',       # Altın Ons (Vadeli)
-        'Silver': 'SI=F',     # Gümüş Ons
-        'USD_TRY': 'USDTRY=X' # Dolar/TL Kuru
-    }
-    
-    print("--- Veriler Çekiliyor... ---")
-    
-    # 2023 başından bugüne kadar olan veriyi çekiyoruz
-    # 'auto_adjust=True' fiyatları temettü vb. için düzeltir
-    data = yf.download(list(assets.values()), start='2023-01-01', auto_adjust=True)
-    
-    # Bize sadece Kapanış (Close) fiyatları lazım
-    prices = data['Close']
-    
-    # Sembol isimlerini (GC=F vb.) bizim anlayacağımız isimlere (Gold vb.) çevirelim
-    inv_assets = {v: k for k, v in assets.items()}
-    prices = prices.rename(columns=inv_assets)
-    
-    # Eksik verileri (hafta sonları vb.) temizleyelim
+BASE_DIR = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(BASE_DIR))
+from data.database import insert_price
+
+ASSETS = {
+    'XAU':     'GC=F',
+    'XAG':     'SI=F',
+    'USD_TRY': 'USDTRY=X',
+    'DXY':     'DX-Y.NYB',  # 2023-2024 arası mevcut, sonrası yok
+    'EUR_USD': 'EURUSD=X',
+}
+
+def download_and_store():
+    print("Veriler çekiliyor...")
+    data = yf.download(list(ASSETS.values()), start='2023-01-01', auto_adjust=True)
+    prices = data['Close'].rename(columns={v: k for k, v in ASSETS.items()})
     prices = prices.dropna()
-    
-    # Veriyi kaydetmeden önce terminalde bir önizleme görelim
-    print("\nVerinin ilk 5 satırı:")
-    print(prices.head())
-    
-  # scripts/price_fetcher/price_fetcher.py içindeki ilgili kısmı şöyle değiştir:
 
-# Dosyanın bulunduğu klasörü bul (price_fetcher klasörü)
-    current_dir = os.path.dirname(os.path.abspath(__file__))
+    # CSV güncelle
+    csv_path = BASE_DIR / 'data' / 'market_prices.csv'
+    prices.to_csv(csv_path)
+    print(f"CSV guncellendi: {csv_path}")
 
-# 2 kat yukarı çık (scripts ve sonra MarketSentimentAnalysis) ve data klasörüne gir
-    output_path = os.path.join(current_dir, '..', '..', 'data', 'market_prices.csv')
+    # DB'ye yaz
+    total = 0
+    for asset in ASSETS:
+        series = prices[asset]
+        pct = series.pct_change() * 100
+        for date, close in series.items():
+            insert_price({
+                'date':       str(date.date()),
+                'asset':      asset,
+                'open':       None,
+                'high':       None,
+                'low':        None,
+                'close':      float(close),
+                'volume':     None,
+                'change_pct': None if pd.isna(pct[date]) else round(float(pct[date]), 4),
+            })
+            total += 1
 
-# Şimdi kaydet
-    prices.to_csv(output_path)
-    
-    print(f"\n✅ Başarılı! Veriler 'data/market_prices.csv' olarak kaydedildi.")
+    print(f"DB'ye yazildi: {total} satir")
 
 if __name__ == "__main__":
-    download_market_data()
+    download_and_store()

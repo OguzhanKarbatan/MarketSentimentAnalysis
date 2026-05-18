@@ -211,5 +211,6 @@ venv/
 data/*.csv
 data/images/
 models/*.h5
+logs/
 .env
 .claude/

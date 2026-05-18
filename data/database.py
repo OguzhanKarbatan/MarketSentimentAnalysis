@@ -86,6 +86,12 @@ def init_db():
                 bullish_ratio   FLOAT,
                 tweet_count     INTEGER,
                 expert_count    INTEGER,
+                rsi             FLOAT,
+                macd            FLOAT,
+                macd_signal     FLOAT,
+                bb_position     FLOAT,
+                ma7             FLOAT,
+                ma20            FLOAT,
                 created_at      TIMESTAMPTZ DEFAULT NOW()
             );
 
@@ -154,18 +160,26 @@ def upsert_daily_features(f: dict):
             (date, xau_close, xau_change_pct, xag_close, dxy_close,
              dxy_change_pct, eur_usd_close, usd_try_close,
              sentiment_avg, sentiment_std, bullish_ratio,
-             tweet_count, expert_count)
+             tweet_count, expert_count,
+             rsi, macd, macd_signal, bb_position, ma7, ma20)
         VALUES
             (%(date)s, %(xau_close)s, %(xau_change_pct)s, %(xag_close)s,
              %(dxy_close)s, %(dxy_change_pct)s, %(eur_usd_close)s,
              %(usd_try_close)s, %(sentiment_avg)s, %(sentiment_std)s,
-             %(bullish_ratio)s, %(tweet_count)s, %(expert_count)s)
+             %(bullish_ratio)s, %(tweet_count)s, %(expert_count)s,
+             %(rsi)s, %(macd)s, %(macd_signal)s, %(bb_position)s, %(ma7)s, %(ma20)s)
         ON CONFLICT (date) DO UPDATE SET
             sentiment_avg  = EXCLUDED.sentiment_avg,
             sentiment_std  = EXCLUDED.sentiment_std,
             bullish_ratio  = EXCLUDED.bullish_ratio,
             tweet_count    = EXCLUDED.tweet_count,
-            expert_count   = EXCLUDED.expert_count
+            expert_count   = EXCLUDED.expert_count,
+            rsi            = EXCLUDED.rsi,
+            macd           = EXCLUDED.macd,
+            macd_signal    = EXCLUDED.macd_signal,
+            bb_position    = EXCLUDED.bb_position,
+            ma7            = EXCLUDED.ma7,
+            ma20           = EXCLUDED.ma20
     """
     with get_connection() as conn:
         with conn.cursor() as cur:
@@ -201,6 +215,13 @@ def get_features_for_lstm(days: int = 60) -> list[dict]:
             """, (days,))
             rows = cur.fetchall()
             return [dict(r) for r in reversed(rows)]
+
+def reset_tweets_and_sentiments():
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("TRUNCATE TABLE sentiments RESTART IDENTITY CASCADE")
+            cur.execute("TRUNCATE TABLE tweets RESTART IDENTITY CASCADE")
+    print("tweets ve sentiments tabloları temizlendi.")
 
 if __name__ == "__main__":
     init_db()

@@ -1,0 +1,86 @@
+# --- RESMİ KURUMLAR VE HABER ---
+Merkez_Bankasi
+HMBakanligi
+tcbestepe
+BloombergHT
+trthaber
+AACanli
+ekonomistdergi
+dunyagazetesii
+federalreserve
+ecb
+reuters
+GoldmanSachs
+
+# --- EKONOMİSTLER VE STRATEJİSTLER (TÜRKİYE) ---
+OzgurinEnglish
+_selcukgecer
+islammemis
+mahfiegilmez
+ali_hakan_kara
+AtillaYesilada1
+TuncSatiroglu
+evrendevrimz
+_ErkanOz
+barissoydan
+MuratMuratoglux
+emrealkin1969
+iriscibre
+Ft_Ekonomist
+
+
+# --- KÜRESEL ANALİSTLER (ALTIN VE GÜMÜŞ) ---
+GoldPredictors
+SchiffGold
+goldpricetweets
+KitcoNewsNOW
+Fxhedgers
+zerohedge
+Goldmoney
+GoldSeekcom
+GoldSeek
+SilverInstitute
+
+
+# --- FİNANSAL PLATFORMLAR VE BOTLAR ---
+InvestingTR
+MatriksHaber
+paraanaliz
+tradingview
+apara_tv
+borsagundem
+
+
+# --- MERKEZ BANKALARI VE ULUSLARARASI KURUMLAR ---
+IMFNews
+OECD
+BIS_org
+PiyasaTurkiye
+EU_Eurostat
+ESM_Press
+
+# --- FİNANS HABER KANALLARI ---
+business
+WSJ
+WSJmarkets
+CNBC
+MarketWatch
+TheEconomist
+Forbes
+ReutersBiz
+CNBCi
+FT
+
+# --- KÜRESEL HABER (JEOPOLİTİK) ---
+BBCWorld
+AJEnglish
+FXStreetNews
+Investingcom
+
+# --- POLİTİK VE MAKRO ETKİLEYİCİLER ---
+realDonaldTrump
+stlouisfed
+NYFedResearch
+RayDalio
+elonmusk
+Lagarde

@@ -3,7 +3,7 @@ import yfinance as yf
 import pandas as pd
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parents[2]
+BASE_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BASE_DIR))
 from data.database import insert_price
 
@@ -11,22 +11,16 @@ ASSETS = {
     'XAU':     'GC=F',
     'XAG':     'SI=F',
     'USD_TRY': 'USDTRY=X',
-    'DXY':     'DX-Y.NYB',  # 2023-2024 arası mevcut, sonrası yok
+    'DXY':     'DX-Y.NYB',
     'EUR_USD': 'EURUSD=X',
 }
 
 def download_and_store():
-    print("Veriler çekiliyor...")
+    print("Veriler cekiliyor...")
     data = yf.download(list(ASSETS.values()), start='2023-01-01', auto_adjust=True)
     prices = data['Close'].rename(columns={v: k for k, v in ASSETS.items()})
     prices = prices.dropna()
 
-    # CSV güncelle
-    csv_path = BASE_DIR / 'data' / 'market_prices.csv'
-    prices.to_csv(csv_path)
-    print(f"CSV guncellendi: {csv_path}")
-
-    # DB'ye yaz
     total = 0
     for asset in ASSETS:
         series = prices[asset]

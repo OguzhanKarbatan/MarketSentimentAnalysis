@@ -5,6 +5,7 @@ import json
 import uuid
 import random
 import requests
+from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from playwright.async_api import async_playwright
 
@@ -71,6 +72,13 @@ async def wait_with_log(seconds: float, reason: str):
     await asyncio.sleep(seconds)
 
 
+def _run_sentiment(account: str):
+    from scripts.analyse_sentiment import process_unprocessed
+    n = process_unprocessed(label=account)
+    if n:
+        print(f"   Sentiment: {n} tweet analiz edildi.")
+
+
 async def fetch_tweets_persistent(auto_mode: bool = False):
     existing_ids = load_existing_tweet_ids()
     print(f"Arsiv yuklendi: {len(existing_ids)} tweet DB'de mevcut.")
@@ -109,8 +117,7 @@ async def fetch_tweets_persistent(auto_mode: bool = False):
         with open(txt_path, 'r', encoding='utf-8') as f:
             experts = [line.strip() for line in f if line.strip() and not line.startswith('#')]
 
-        # Otomatik modda az scroll — sadece son tweetleri yakala
-        scroll_range = (5, 10) if auto_mode else (25, 35)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=2) if auto_mode else None
 
         for idx, account in enumerate(experts):
             try:
@@ -125,11 +132,14 @@ async def fetch_tweets_persistent(auto_mode: bool = False):
                     await page.goto(f"https://x.com/{account}", wait_until="domcontentloaded", timeout=60000)
                     await asyncio.sleep(random.uniform(5, 10))
 
-                scroll_count = random.randint(*scroll_range)
+                max_scrolls = 20 if auto_mode else random.randint(25, 35)
                 saved = 0
                 seen_on_page = set()
+                hit_cutoff = False
 
-                for s in range(scroll_count):
+                for s in range(max_scrolls):
+                    if hit_cutoff:
+                        break
                     tweets = await page.query_selector_all('article[data-testid="tweet"]')
                     for tweet in tweets:
                         link_el = await tweet.query_selector('a[href*="/status/"]')
@@ -151,6 +161,12 @@ async def fetch_tweets_persistent(auto_mode: bool = False):
 
                         if not timestamp:
                             continue
+
+                        if cutoff:
+                            tweet_time = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
+                            if tweet_time < cutoff:
+                                hit_cutoff = True
+                                break
 
                         text_el = await tweet.query_selector('[data-testid="tweetText"]')
                         text = ""
@@ -191,12 +207,15 @@ async def fetch_tweets_persistent(auto_mode: bool = False):
 
                 print(f"   @{account} -> {saved} yeni tweet kaydedildi.")
 
+                if auto_mode and saved > 0:
+                    _run_sentiment(account)
+
                 if (idx + 1) % LONG_BREAK_EVERY == 0 and (idx + 1) < len(experts):
-                    pause = random.uniform(LONG_BREAK_MIN, LONG_BREAK_MAX)
+                    pause = random.uniform(30, 45) if auto_mode else random.uniform(LONG_BREAK_MIN, LONG_BREAK_MAX)
                     print(f"\n--- {LONG_BREAK_EVERY} hesap tamamlandi, {pause:.0f}s uzun mola ---")
                     await asyncio.sleep(pause)
                 else:
-                    pause = random.uniform(BETWEEN_ACCOUNTS_MIN, BETWEEN_ACCOUNTS_MAX)
+                    pause = random.uniform(15, 30) if auto_mode else random.uniform(BETWEEN_ACCOUNTS_MIN, BETWEEN_ACCOUNTS_MAX)
                     await wait_with_log(pause, "sonraki hesap")
 
             except Exception as e:

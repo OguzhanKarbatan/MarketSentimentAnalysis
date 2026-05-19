@@ -37,11 +37,8 @@ def run(script: str, desc: str, extra_args: list = None) -> bool:
 
 def main():
     log("=== 2 saatlik tweet guncellemesi basladi ===")
-    if not run("fetch_tweets.py", "Tweet cekme (auto)", extra_args=["--auto"]):
-        log("Tweet cekme basarisiz, pipeline atlandi.")
-        return
-    if not run("analyse_sentiment.py", "Sentiment analizi"):
-        log("Sentiment basarisiz, build_features atlandi.")
+    if not run("fetch_tweets.py", "Tweet cekme + sentiment (auto)", extra_args=["--auto"]):
+        log("Tweet pipeline basarisiz, build_features atlandi.")
         return
     run("build_features.py", "Daily features")
     log("=== Tweet guncellemesi tamamlandi ===")

@@ -132,7 +132,7 @@ def build_features(start_date: date = None, end_date: date = None):
 
                 current += timedelta(days=1)
 
-    print(f"\nTamamlandi: {islenen} gun islendi, {atlanan} gun atlanди.")
+    print(f"\nTamamlandi: {islenen} gun islendi, {atlanan} gun atlandi.")
 
 
 if __name__ == "__main__":

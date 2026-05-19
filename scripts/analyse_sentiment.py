@@ -8,9 +8,15 @@ from transformers import pipeline
 from deep_translator import GoogleTranslator
 from data.database import get_unprocessed_tweets, insert_sentiment, get_connection
 
-print("FinBERT yukleniyor...")
-finbert = pipeline("text-classification", model="ProsusAI/finbert", top_k=3)
-print("Model hazir.")
+finbert = None
+
+
+def load_model():
+    global finbert
+    if finbert is None:
+        print("FinBERT yukleniyor...")
+        finbert = pipeline("text-classification", model="ProsusAI/finbert", top_k=3)
+        print("Model hazir.")
 
 
 def translate_to_english(text: str) -> str:
@@ -21,6 +27,7 @@ def translate_to_english(text: str) -> str:
 
 
 def analyse_tweet(text: str) -> dict:
+    load_model()
     translated = translate_to_english(text)
     results = finbert(translated[:512])
 
@@ -47,20 +54,14 @@ def analyse_tweet(text: str) -> dict:
     }
 
 
-def run():
-    with get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT COUNT(*) FROM tweets WHERE processed = FALSE")
-            toplam = cur.fetchone()[0]
-
-    print(f"Toplam islenmemis tweet: {toplam}")
+def process_unprocessed(label: str = "") -> int:
+    """Veritabanindaki tum islenmemis tweetleri analiz eder."""
+    load_model()
     islenen = 0
-
     while True:
         tweets = get_unprocessed_tweets(limit=100)
         if not tweets:
             break
-
         for tweet in tweets:
             try:
                 result = analyse_tweet(tweet['text'])
@@ -77,10 +78,20 @@ def run():
                     'model':           'finbert',
                 })
                 islenen += 1
-                print(f"[{islenen}/{toplam}] {tweet['expert_id']}: {result['label']} ({result['sentiment_score']})")
+                prefix = f"[{label}] " if label else ""
+                print(f"  {prefix}{tweet['expert_id']}: {result['label']} ({result['sentiment_score']:+.3f})")
             except Exception as e:
-                print(f"HATA - {tweet['tweet_id']}: {e}")
+                print(f"  HATA - {tweet['tweet_id']}: {e}")
+    return islenen
 
+
+def run():
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT COUNT(*) FROM tweets WHERE processed = FALSE")
+            toplam = cur.fetchone()[0]
+    print(f"Toplam islenmemis tweet: {toplam}")
+    islenen = process_unprocessed()
     print(f"Tamamlandi. {islenen} tweet islendi.")
 
 
